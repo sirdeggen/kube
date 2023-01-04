@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: localhost
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/wallet"
+            backend:
+              service:
+                name: wallet-api
+                port:
+                  number: 9999
+          - pathType: Prefix
+            path: "/json-rpc"
+            backend:
+              service:
+                name: json-rpc
+                port:
+                  number: 8332

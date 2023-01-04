@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wallet
+spec:
+  containers:
+  - name: electrumsv
+    image: electrumsv/payd:develop
+    ports:
+    - containerPort: 8332
+    - containerPort: 9999
+    volumeMounts:
+      - name: esv-volume
+        mountPath: "/root/.electrum-sv"
+    env:
+      - name: WALLET_NAME
+        valueFrom:
+          secretKeyRef:
+            name: wallet-secret
+            key: wallet-name
+      - name: WALLET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: wallet-secret
+            key: wallet-password
+    command: ["python3"]
+    args:
+      - electrum-sv
+      - daemon
+      - -v=debug
+      - --enable-node-wallet-api
+      - -rpcpassword=
+      - -walletnotify="python3 contrib/scripts/jsonrpc_wallet_event.py %s"
+  volumes:
+    - name: esv-volume
+      persistentVolumeClaim:
+        claimName: esv-volume-claim
